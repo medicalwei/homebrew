@@ -1,21 +1,27 @@
 require 'formula'
 
 class Handbrakecli <Formula
-   @@svnversion = '3606'
+   # @@dmgversion = 'svn3606'
+   @@dmgversion = '0.9.5'
    @@arch = 'x86_64'
-   @@dmgname = "HandBrake-svn#{@@svnversion}-MacOSX.5_CLI_#{@@arch}"
+   @@dmgname = "HandBrake-#{@@dmgversion}-MacOSX.5_CLI_#{@@arch}"
+   if /svn/.match(@@dmgversion)
+      @@dmgurl = 'https://build.handbrake.fr/job/Mac/lastSuccessfulBuild/artifact/trunk/packages/'+@@dmgname+'.dmg'
+   else
+      @@dmgurl = 'http://handbrake.fr/rotation.php?file='+@@dmgname+'.dmg'
+   end
 
-   url 'https://build.handbrake.fr/job/Mac/lastSuccessfulBuild/artifact/trunk/packages/'+@@dmgname+'.dmg', \
-      :using => NoUnzipCurlDownloadStrategy
-   version "#{@@svnversion}.#{/64/.match(@@arch) ? '64' : '32'}"
    homepage 'http://handbrake.fr/'
-   md5 ''
+   url @@dmgurl, :using => NoUnzipCurlDownloadStrategy
+   version "#{/svn/.match(@@dmgversion) ? @@dmgversion.sub(/svn/,'') : @@dmgversion}"
+   # md5 '52b29610b0a6a322ca7caffc25844e2b'
+   md5 'ebb61a2eb123e49c1f6cf25f81b82a0b'
 
    # don't strip binaries
    skip_clean ['bin']
 
    def install
-      system "hdiutil attach #{@@dmgname}.dmg"
+      system "hdiutil attach #{File.basename(@@dmgurl)}"
       bin.mkdir
       cp "/Volumes/#{@@dmgname}/HandBrakeCLI", (bin+'HandBrakeCLI')
       chmod 0555, (bin+'HandBrakeCLI')

@@ -205,6 +205,8 @@ module HomebrewEnvExtension
 
   # i386 and x86_64 only, no PPC
   def universal_binary
+    return if Hardware.cpu_type == :ppc # this command skips when on powerpc
+
     append_to_cflags '-arch i386 -arch x86_64'
     self.O3 if self['CFLAGS'].include? '-O4' # O4 seems to cause the build to fail
     append 'LDFLAGS', '-arch i386 -arch x86_64'
